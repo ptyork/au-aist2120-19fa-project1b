@@ -2,45 +2,70 @@
 
 This is a simple little utility with a twist. I can't really think of a useful purpose for this particular script in real life, but the general concept of parsing and modifying a file word-by-word is VERY useful. Regardless, the goal is to reverse the letters of each individual word in a given input file. 
 
-The script, wmirror.py, should: 
+The script, `wmirror.py`, should: 
 
-1. Ask the user for a file name 
-2. Open the requested file 
-3. Split the contents of the file into words 
-4. Iterate over each word 
-5. Reverse the letters of the word 
-6. Output the mirrored word to the screen 
+1. Open the file specified as the first argument to the script (see below)
+2. Read the file one line at a time (i.e., for line in file)
+3. Split the contents of each line into words (no argument passed to split so you split on whitespace)
+4. Iterate over each word
+    4a. Mirror the word
+    4b. Append the translated word (and a blank space)to a string
+5. Print the mirrored string to the screen
 
-__THE HARD'ISH PART__: When splitting out the words, be careful to check the LAST character of the word. If it's punctuation, be sure to deal with that correctly. In other words, "well, let's go." should be "llew, s'tel og." NOT ",llew s'tel .og" 
+## CONSIDERATIONS
+
+1. If a "word" is empty or just whitespace, return nothing.
+
+2. When translating a "word", be careful to check for punctuation and deal with that correctly. Especially words followed by periods, commas, etc. But also words starting or ending with quotation marks. Pay attention to periods, question marks, exclamation points, commas, quotation marks, semi-colons, and dashes. E.g.:
+    - battle, ==> elttab,
+        * __not__ ,elttab
+    - "rejoicing ==> "gniciojer
+        * __not__ gniciojer"
+    - tribulation," ==> noitalubirt,"
+        * __not__ ",noitalubirt
+
+3. If a "word" is __JUST__ punctuation (like em dash "--"), then just return the word untranslated.
+
+## HINTS 
+
+1. The "arguments" to a python program are in the sys.argv list. The first element in the list is the name of the script and the rest are any additional words (arguments) added to the end. [See here for explanation](https://www.tutorialspoint.com/python/python_command_line_arguments.htm). The code needed may look as follows:
+```
+import sys
+
+filename = sys.argv[1]
+```
+
+2. For consideration #2 above, you might start off your to_piglatin function by creating prefix and suffix strings. Start each as an empty string. Then "move" each punction character from the beginning of the word to the prefix string and any from the end to the suffix string. Then at the end, concatenate and return prefix + word + suffix. For example, the first part (moving the prefix characters) may look similar to:
+```
+    punctuation = '.?!,";-'
+    prefix = ''
+    while len(word) > 0 and word[0] in punctuation:
+        prefix = prefix + word[0]
+        word = word[1:]
+```
 
 ## REQUIRED IMPLEMENTATION NOTES 
 
-1. You MUST abstract your most useful logic by creating a function named mirror that takes a word and returns the reversed version (properly handling the punctuation issue outlined above). This function should be "called" as your step 5 above, which will make the main script much cleaner. So to reiterate, the following function MUST be in your code: 
+1. You MUST abstract your most useful logic by creating a function named reverse_it that takes a word and returns the reversed version (properly handling the punctuation issue outlined above). This function should be "called" as your step 4a above, which will make the main script much cleaner. In other words, the main part of your script should open the file, loop through each line, split the line into words, and iterate over the words, and the following function MUST be defined in your script and called to reverse each individual word: 
 
 ``` 
-        def mirror(word): 
-            ....
+        def reverse_it(word): 
+          ... REVERSE THE WORD ...
+          return word
 ``` 
 
-2. You MUST modify getty.txt, replacing Abraham Lincoln's name with your own. 
+2. You MUST modify kennedy.txt, replacing John F. Kennedy's name with your own. JUST edit and save the file using VS code or another text editor. No Python code required here.
 
-3. You MUST then mirror getty.txt and redirect the output to mirror-getty.txt. In other words, you should run `python wmirror.py > mirror-getty.txt` and select getty.txt when prompted. Include this file in your final submission. 
+3. You MUST then mirror `kennedy.txt` and redirect the output to `mirror_kennedy.txt`. In other words, you should run `python mirror.py kennedy.txt > mirror_kennedy.txt`. This mirrored file should be in your final submission. __DO NOT WRITE TO A FILE INSIDE OF YOUR SCRIPT. ONLY READ AND PRINT. WRITING OCCURS HERE BY REDIRECTING OUTPUT.__
 
-## LOGISTICS 
+Note: If you do output redirection in Windows Powershell (the default shell for VS Code), it outputs writes the file using Unicode, which can cause issues. Use a standard Command Prompt (cmd.exe) if running this in Windows. Should not have any issues on Mac or Linux (and thus Mimir).
 
-Same basic deal as with the homeworks. 
-
-1. From your AIST2120 folder, run `git clone [URL]` to make a local copy of this assignment. 
-2. DO THE WORK 
-3. TEST YOUR WORK A WHOLE LOT 
-4. TEST IT SOME MORE LIKE YOU MEAN IT THIS TIME 
-5. When done, run `git add .` 
-6. Then run `git commit –m "type a clever message here"` 
-7. Finally run `git push` to push your changes back up to GitHub 
-8. Breathe a sigh of relief 
+When done, be sure to test the heck out of this and then submit the __project1 directory__ in Mimir.
 
 ## OPTIONAL CHALLENGES 
 
-1. Create a second version of the script, wmirror2.py. This version should import the mirror function from wmirror (`from wmirror import mirror`). Instead of asking for a file name and reading the text from the file, instead read in the text line-by-line from sys.stdin. This should allow you to run it interactively AND to pipe in text from another command (e.g., `type getty.txt | python wmirror.py`). 
+1. If the original word was title case, make the reversed word title case, as well. In other words "Kennedy" would become "Ydennek".
 
-2. Instead of mirroring the words, scramble them. In other words, use every letter, but randomly. This is challenging, but doable. You will need to use the randint() function from the random module. Hint: consider converting each word to a list of characters and then "pop()" a letter from a random location in the word until all characters are used. Assuming your list of characters in called word, something like `ch = word.pop(randint(0,len(word)))` might be useful code here.
+2. Create a second version of the script, wmirror2.py. This version should import the reverse_it function from wmirror (`from wmirror import reverse_it`). Instead of asking for a file name and reading the text from the file, instead read in the text line-by-line from sys.stdin. This should allow you to run it interactively AND to pipe in text from another command (e.g., `type kennedy.txt | python wmirror2.py`). 
+
+3. Instead of mirroring the words, scramble them. In other words, use every letter, but randomly. This is challenging, but doable. You will need to use the randint() function from the random module. Hint: consider converting each word to a list of characters and then "pop()" a letter from a random location in the word until all characters are used. Assuming your list of characters in called word, something like `ch = word.pop(randint(0,len(word)))` might be useful code here.
